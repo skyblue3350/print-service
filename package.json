@@ -6,7 +6,7 @@
     "dev": "remix vite:dev",
     "build": "remix vite:build",
     "typecheck": "tsc",
-    "start": "remix-serve build",
+    "start": "remix-serve build/server/index.js",
     "test": "vitest",
     "test:e2e": "playwright test",
     "docker:dev": "docker compose up --build",
