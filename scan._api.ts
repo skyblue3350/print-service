@@ -4,19 +4,16 @@ import { readFile, unlink } from "fs/promises";
 import path from "path";
 
 export const action = async (_: ActionFunctionArgs) => {
-  console.log('action called');
   const tmpPath = path.join("/tmp", `scan_${Date.now()}.png`);
   return new Promise((resolve) => {
     exec(`scanimage --device-name \"pixma:MG6200_192.168.1.113\" --format=png --resolution 100 > '${tmpPath}'`, async (err) => {
       if (err) {
-        console.error('scanimage error:', err);
         resolve(new Response("スキャンに失敗しました", { status: 500 }));
         return;
       }
       try {
         const img = await readFile(tmpPath);
         await unlink(tmpPath);
-        console.log('scan success, returning png');
         resolve(new Response(new Uint8Array(img), {
           status: 200,
           headers: {
