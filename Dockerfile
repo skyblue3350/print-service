@@ -26,4 +26,6 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["/app/scripts/entrypoint.sh"]
+ENTRYPOINT ["/app/scripts/entrypoint.sh"]
+
+CMD ["npm", "run", "dev"]

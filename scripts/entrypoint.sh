@@ -79,5 +79,5 @@ fi
 # シグナルハンドリングを設定してCUPSデーモンも適切に終了させる
 trap 'kill $(jobs -p)' EXIT
 
-# メインプロセスとしてnpm run devを実行
-exec npm run dev
+# メインプロセスとしてCMDで渡された引数を実行
+exec "$@"
