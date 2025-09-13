@@ -34,12 +34,14 @@ if [ -n "$PRINTERS_CONFIG" ]; then
     # カンマで区切られた各プリンター設定をループ
     IFS=',' read -ra PRINTER_ARRAY <<< "$PRINTERS_CONFIG"
     for PRINTER_INFO in "${PRINTER_ARRAY[@]}"; do
-        # コロンで名前、IP、プロトコル、モデルを分割
+        # コロンで分割（名前:IP:プロトコル:モデル）
         IFS=':' read -ra INFO_ARRAY <<< "$PRINTER_INFO"
         PRINTER_NAME=${INFO_ARRAY[0]}
         PRINTER_IP=${INFO_ARRAY[1]}
         PRINTER_PROTOCOL=${INFO_ARRAY[2]}
-        PRINTER_MODEL=${INFO_ARRAY[3]}
+        # 残りの部分をモデルとして結合（モデル名にコロンが含まれる場合に対応）
+        PRINTER_MODEL=$(printf "%s:" "${INFO_ARRAY[@]:3}")
+        PRINTER_MODEL=${PRINTER_MODEL%:}  # 最後のコロンを削除
 
         # プリンターの追加と設定
         echo "Adding printer: $PRINTER_NAME with protocol $PRINTER_PROTOCOL at $PRINTER_IP"
