@@ -8,7 +8,11 @@
     "typecheck": "tsc",
     "start": "remix-serve build",
     "test": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "docker:dev": "docker compose up --build",
+    "docker:dev:daemon": "docker compose up --build -d",
+    "docker:stop": "docker compose down",
+    "docker:clean": "docker compose down -v --remove-orphans && docker system prune -f"
   },
   "dependencies": {
     "@mantine/core": "^7.17.8",
