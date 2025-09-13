@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Title, Button, Group, Text, Stack, Card, Center, Alert, Box, Badge, Select } from '@mantine/core';
 import { Link } from '@remix-run/react';
+import jsPDF from 'jspdf';
 
 interface Scanner {
   value: string;
@@ -86,6 +87,86 @@ export default function Scan() {
     }
   };
 
+  // PNG形式でダウンロード
+  const downloadAsPNG = () => {
+    if (!img) return;
+    
+    const link = document.createElement('a');
+    link.href = img;
+    link.download = `scan_${new Date().getTime()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // JPG形式でダウンロード
+  const downloadAsJPG = () => {
+    if (!img) return;
+    
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const image = new Image();
+    
+    image.onload = () => {
+      canvas.width = image.width;
+      canvas.height = image.height;
+      
+      // 白い背景を追加（JPGは透明度をサポートしないため）
+      if (ctx) {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(image, 0, 0);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `scan_${new Date().getTime()}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+          }
+        }, 'image/jpeg', 0.9);
+      }
+    };
+    
+    image.src = img;
+  };
+
+  // PDF形式でダウンロード
+  const downloadAsPDF = () => {
+    if (!img) return;
+    
+    const image = new Image();
+    image.onload = () => {
+      const pdf = new jsPDF();
+      
+      // 画像のサイズを取得
+      const imgWidth = image.width;
+      const imgHeight = image.height;
+      
+      // PDFページのサイズ（A4）
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      
+      // 画像をページに収まるようにリサイズ
+      const ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
+      const width = imgWidth * ratio;
+      const height = imgHeight * ratio;
+      
+      // 中央に配置
+      const x = (pageWidth - width) / 2;
+      const y = (pageHeight - height) / 2;
+      
+      pdf.addImage(img, 'PNG', x, y, width, height);
+      pdf.save(`scan_${new Date().getTime()}.pdf`);
+    };
+    
+    image.src = img;
+  };
+
   return (
     <Container size="md" py="xl">
       <Stack gap="xl">
@@ -154,6 +235,40 @@ export default function Scan() {
                       }} 
                     />
                   </Box>
+                  
+                  <Card shadow="xs" padding="sm" radius="md" withBorder style={{ backgroundColor: '#f8f9fa' }}>
+                    <Stack gap="xs">
+                      <Text size="sm" fw={500} ta="center" c="dimmed">
+                        📥 ダウンロード
+                      </Text>
+                      <Group justify="center" gap="sm">
+                        <Button
+                          size="sm"
+                          variant="filled"
+                          color="blue"
+                          onClick={downloadAsPNG}
+                        >
+                          PNG
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="filled"
+                          color="orange"
+                          onClick={downloadAsJPG}
+                        >
+                          JPG
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="filled"
+                          color="red"
+                          onClick={downloadAsPDF}
+                        >
+                          PDF
+                        </Button>
+                      </Group>
+                    </Stack>
+                  </Card>
                 </Stack>
               </Card>
             )}
