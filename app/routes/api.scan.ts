@@ -6,7 +6,7 @@ import path from "path";
 export const action = async (_: ActionFunctionArgs) => {
   const tmpPath = path.join("/tmp", `scan_${Date.now()}.png`);
   return new Promise((resolve) => {
-    exec(`scanimage --device-name \"pixma:MG6200_192.168.1.113\" --format=png --resolution 100 > '${tmpPath}'`, async (err) => {
+    exec(`scanimage --device-name MG6200 --format=png --resolution 100 > '${tmpPath}'`, async (err) => {
       if (err) {
         console.error('scanimage error:', err);
         resolve(new Response("スキャンに失敗しました", { status: 500 }));

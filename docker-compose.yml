@@ -11,6 +11,9 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+    environment:
+      PRINTERS_CONFIG: MG6200:192.168.1.113:lpd:gutenprint.5.3://bjc-PIXMA-MG6200/expert
+      SCANNERS_CONFIG: MG6200:192.168.1.113
     stdin_open: true
     tty: true
     restart: unless-stopped

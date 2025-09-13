@@ -1,5 +1,19 @@
 # 開発環境用のDockerfile
-FROM node:18-alpine
+FROM node:22-slim
+
+# 必要なパッケージをインストール
+RUN apt-get update && apt-get install -y \
+    sane-utils \
+    cups \
+    cups-client \
+    cups-bsd \
+    printer-driver-gutenprint \
+    socat \
+    && rm -rf /var/lib/apt/lists/*
+
+# CUPSの基本設定
+RUN mkdir -p /etc/cups && \
+    echo "ServerName localhost" > /etc/cups/client.conf
 
 # 作業ディレクトリを設定
 WORKDIR /app
@@ -12,4 +26,4 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+CMD ["/app/scripts/entrypoint.sh"]
