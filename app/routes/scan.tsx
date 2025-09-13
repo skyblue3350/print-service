@@ -1,19 +1,57 @@
 
-import { useState } from 'react';
-import { Container, Title, Button, Group, Text, Stack, Card, Center, Alert, Box, Badge } from '@mantine/core';
+import { useState, useEffect } from 'react';
+import { Container, Title, Button, Group, Text, Stack, Card, Center, Alert, Box, Badge, Select } from '@mantine/core';
 import { Link } from '@remix-run/react';
+
+interface Scanner {
+  value: string;
+  label: string;
+  ip: string;
+}
 
 export default function Scan() {
   const [img, setImg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [selectedDevice, setSelectedDevice] = useState('');
+  const [scanners, setScanners] = useState<Scanner[]>([]);
+  const [scannersLoading, setScannersLoading] = useState(true);
+
+  // スキャナーリストを取得
+  useEffect(() => {
+    const fetchScanners = async () => {
+      try {
+        const response = await fetch('/api/scanners');
+        const data = await response.json();
+        setScanners(data.scanners);
+        
+        // デフォルトデバイスを設定
+        if (data.scanners.length > 0) {
+          setSelectedDevice(data.scanners[0].value);
+        }
+      } catch (error) {
+        console.error('Failed to fetch scanners:', error);
+        setError('スキャナーリストの取得に失敗しました');
+      } finally {
+        setScannersLoading(false);
+      }
+    };
+
+    fetchScanners();
+  }, []);
 
   const handleScan = async () => {
     setLoading(true);
     setError('');
     setImg(null);
     try {
-      const res = await fetch('/api/scan', { method: 'POST' });
+      const formData = new FormData();
+      formData.append('device', selectedDevice);
+      
+      const res = await fetch('/api/scan', { 
+        method: 'POST',
+        body: formData
+      });
       if (!res.ok) {
         setError('スキャンに失敗しました');
         setLoading(false);
@@ -63,6 +101,20 @@ export default function Scan() {
 
         <Card shadow="md" padding="lg" radius="md" withBorder>
           <Stack gap="md">
+            <Select
+              label="スキャナーデバイス"
+              placeholder="使用するスキャナーを選択してください"
+              value={selectedDevice}
+              onChange={(value) => setSelectedDevice(value || '')}
+              data={scanners.map(scanner => ({
+                value: scanner.value,
+                label: scanner.label
+              }))}
+              allowDeselect={false}
+              disabled={scannersLoading || scanners.length === 0}
+              description={scannersLoading ? 'スキャナーを検索中...' : scanners.length === 0 ? 'スキャナーが見つかりません' : `${scanners.length}台のスキャナーが利用可能です`}
+            />
+
             <Group justify="center">
               <Button 
                 onClick={handleScan} 
@@ -70,7 +122,7 @@ export default function Scan() {
                 size="lg"
                 variant="gradient" 
                 gradient={{ from: 'green', to: 'teal' }}
-                disabled={loading}
+                disabled={loading || !selectedDevice || scanners.length === 0}
               >
                 {loading ? 'スキャン中...' : '📄 スキャン開始'}
               </Button>

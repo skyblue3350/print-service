@@ -3,10 +3,18 @@ import { exec } from "child_process";
 import { readFile, unlink } from "fs/promises";
 import path from "path";
 
-export const action = async (_: ActionFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
+  const formData = await args.request.formData();
+  const deviceName = formData.get('device') as string;
+
+  if (!deviceName) {
+    return new Response("デバイス名が指定されていません", { status: 400 });
+  }
+
   const tmpPath = path.join("/tmp", `scan_${Date.now()}.png`);
+
   return new Promise((resolve) => {
-    exec(`scanimage --device-name MG6200 --format=png --resolution 100 > '${tmpPath}'`, async (err) => {
+    exec(`scanimage --device-name '${deviceName}' --format=png --resolution 100 > '${tmpPath}'`, async (err) => {
       if (err) {
         console.error('scanimage error:', err);
         resolve(new Response("スキャンに失敗しました", { status: 500 }));
@@ -28,4 +36,4 @@ export const action = async (_: ActionFunctionArgs) => {
       }
     });
   });
-};
+}

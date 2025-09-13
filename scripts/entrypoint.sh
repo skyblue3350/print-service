@@ -70,13 +70,11 @@ if [ -n "$SCANNERS_CONFIG" ]; then
     # カンマで区切られた各スキャナー設定をループ
     IFS=',' read -ra SCANNER_ARRAY <<< "$SCANNERS_CONFIG"
     for SCANNER_INFO in "${SCANNER_ARRAY[@]}"; do
-        # コロンで名前とIPを分割
-        IFS=':' read -ra INFO_ARRAY <<< "$SCANNER_INFO"
-        SCANNER_NAME=${INFO_ARRAY[0]}
-        SCANNER_IP=${INFO_ARRAY[1]}
-        
-        # ファイルに設定を追記
-        echo "net $SCANNER_NAME $SCANNER_IP" >> "$SCANNERS_CONFIG_FILE"
+        # 最初のコロンで名前と残りの部分を分割
+        SCANNER_NAME=${SCANNER_INFO%%:*}
+        SCANNER_IP=${SCANNER_INFO#*:}
+
+        echo "$SCANNER_IP" >> "$SCANNERS_CONFIG_FILE"
         echo "" >> "$SCANNERS_CONFIG_FILE"
     done
 else
