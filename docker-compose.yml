@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: internal-print-service-dev
+    container_name: print-service-dev
     ports:
       - "3000:3000"
     volumes:

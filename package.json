@@ -1,5 +1,5 @@
 {
-  "name": "internal-print-service",
+  "name": "print-service",
   "private": true,
   "type": "module",
   "scripts": {
