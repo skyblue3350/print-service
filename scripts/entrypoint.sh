@@ -27,7 +27,6 @@ fi
 # プリンター情報を格納する環境変数
 # 例: 'MG6200:192.168.1.113:lpd:gutenprint.5.3://bjc-PIXMA-MG6200/expert,EPSON-PX-G5300:192.168.1.114:ipp:gutenprint.5.3://bjc-EPSON-PX-G5300/expert'
 PRINTERS_CONFIG=${PRINTERS_CONFIG:-""}
-DEFAULT_PRINTER=${DEFAULT_PRINTER:-""}
 
 # 環境変数が空でなければ処理を実行
 if [ -n "$PRINTERS_CONFIG" ]; then
@@ -47,12 +46,6 @@ if [ -n "$PRINTERS_CONFIG" ]; then
         echo "Adding printer: $PRINTER_NAME with protocol $PRINTER_PROTOCOL at $PRINTER_IP"
         lpadmin -p "$PRINTER_NAME" -E -v "${PRINTER_PROTOCOL}://${PRINTER_IP}/" -m "$PRINTER_MODEL"
     done
-
-    # デフォルトプリンターの設定
-    if [ -n "$DEFAULT_PRINTER" ]; then
-        echo "Setting default printer to: $DEFAULT_PRINTER"
-        lpoptions -d "$DEFAULT_PRINTER"
-    fi
 else
     echo "No printer configuration found in PRINTERS_CONFIG."
 fi
